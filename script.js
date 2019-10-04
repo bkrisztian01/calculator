@@ -85,7 +85,7 @@ function backspacePress() {
 
 function buttonPress(event) {
 	var key;
-	console.log(event)
+	//TODO: fix problem when you press on screen button with keyboard buttons (=)
 	if (event.type == "click") { //if clicked on a button
 		key = this.textContent;
 	}
