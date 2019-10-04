@@ -72,9 +72,21 @@ function buttonPress() {
 		}
 		lastWasAnswer = true;
 	}
+
 	else if (buttonText == "AC") {
 		resetVariables();
 		display.textContent = "0";
+	}
+
+	else if (buttonText == "<-") {
+		if (display.textContent !== "0") {
+			var temp = display.textContent.split("");
+			temp.pop();
+			display.textContent = temp.join("");
+			if (display.textContent == "") {
+				display.textContent = "0";
+			}
+		}
 	}
 }
 
