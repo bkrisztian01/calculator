@@ -25,68 +25,92 @@ function resetVariables() {
 	lastWasOperator = false;
 }
 
-function buttonPress() {
-	var buttonText = this.textContent;
-	if (["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].indexOf(buttonText) !== -1) {
-	 	if (display.textContent == "0" || lastWasOperator == true || lastWasAnswer) {
-	 		display.textContent = buttonText;
+function numberPress(number) {
+	if (display.textContent == "0" || lastWasOperator == true || lastWasAnswer) {
+	 		display.textContent = number;
 	 		lastWasOperator = false;
 	 		lastWasAnswer = false;
-	 	}
-	 	else {
-	 		display.textContent += buttonText;
-	 	}
-	}
+ 	}
+ 	else {
+ 		display.textContent += number;
+ 	}
+}
 
-	else if (buttonText == ".") {
-		if (display.textContent.indexOf(buttonText) == -1) {
-			display.textContent += buttonText;
-		}
+function decimalPress() {
+	if (display.textContent.indexOf(".") == -1) {
+			display.textContent += ".";
 	}
+}
 
-	else if (["/", "*", "-", "+"].indexOf(buttonText) !== -1) {
-		if (lastWasOperator == false && lastOperator !== null) {
+function operatorPress(operator) {
+	if (lastWasOperator == false && lastOperator !== null) {
 			y = parseFloat(display.textContent);
 			x = operate(lastOperator, x, y);
-			lastOperator = buttonText;
+			lastOperator = operator;
 		}
 		else if (lastWasOperator == true && lastOperator !== null) {
-			lastOperator = buttonText;
+			lastOperator = operator;
 		}
 		else if (lastWasOperator == false && lastOperator == null) {
 			x = parseFloat(display.textContent);
-			lastOperator = buttonText;
+			lastOperator = operator;
 		}
 		lastWasOperator = true;
+}
+
+function equalPress() {
+	if (lastWasOperator == true) {
+		display.textContent = String(x);
+		resetVariables();
+	}
+	else if (lastWasAnswer  == false && lastOperator !== null) {
+		y = parseFloat(display.textContent);
+		x = operate(lastOperator, x, y);
+		display.textContent = String(x);
+		resetVariables();
+	}
+	lastWasAnswer = true;
+}
+
+function backspacePress() {
+	if (display.textContent !== "0") {
+		var temp = display.textContent.split("");
+		temp.pop();
+		display.textContent = temp.join("");
+		if (display.textContent == "") {
+			display.textContent = "0";
+		}
+	}
+}
+
+function buttonPress(event) {
+	var key;
+	console.log(event)
+	if (event.type == "click") { //if clicked on a button
+		key = this.textContent;
+	}
+	else if (event.type == "keydown") {
+		key = event.key;
 	}
 
-	else if (buttonText == "=") {
-		if (lastWasOperator == true) {
-			resetVariables();
-		}
-		else if (lastWasAnswer  == false) {
-			y = parseFloat(display.textContent);
-			x = operate(lastOperator, x, y);
-			display.textContent = String(x);
-			resetVariables();
-		}
-		lastWasAnswer = true;
+	if (["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].indexOf(key) !== -1) {
+	 	numberPress(key);
 	}
-
-	else if (buttonText == "AC") {
+	else if (key == ".") {
+		decimalPress();
+	}
+	else if (["/", "*", "-", "+"].indexOf(key) !== -1) {
+		operatorPress(key);
+	}
+	else if (key == "=" || key == "Enter") {
+		equalPress();
+	}
+	else if (key == "AC") {
 		resetVariables();
 		display.textContent = "0";
 	}
-
-	else if (buttonText == "<-") {
-		if (display.textContent !== "0") {
-			var temp = display.textContent.split("");
-			temp.pop();
-			display.textContent = temp.join("");
-			if (display.textContent == "") {
-				display.textContent = "0";
-			}
-		}
+	else if (key == "<-" || key == "Backspace") {
+		backspacePress();
 	}
 }
 
@@ -101,3 +125,5 @@ var y = 0;
 for (var i = 0; i < buttons.length; i++) {
 	buttons[i].addEventListener("click", buttonPress);
 }
+
+document.addEventListener("keydown", buttonPress);
