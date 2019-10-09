@@ -1,3 +1,67 @@
+var states = [
+	{
+		"name": "Ready",
+		"initial": true,
+		"events": {
+			"NumberPress": "TypingNumber1",
+			"OperatorPress": "TypingOperator",
+			"EqualPress": "DisplayingResult"
+		}
+	},
+	{
+		"name": "TypingNumber1",
+		"events": {
+			"OperatorPress": "TypingOperator",
+			"EqualPress": "DisplayingResult",
+			"Reset": "Ready"
+		}
+	},
+	{
+		"name": "TypingNumber2",
+		"events": {
+			"OperatorPress": "TypingOperator",
+			"EqualPress": "DisplayingResult",
+			"Reset": "Ready"
+		}
+	},
+	{
+		"name": "DisplayingResult",
+		"events": {
+			"Reset": "Ready",
+			"NumberPress": "TypingNumber1",
+			"OperatorPress": "TypingOperator"
+		}
+	},
+	{
+		"name": "TypingOperator",
+		"events": {
+			"Reset": "Ready",
+			"NumberPress": "TypingNumber2"
+		}
+	}
+];
+
+function StateMachine(states) {
+	this.states = states;
+	this.indexes = {};
+	for (var i = 0; i < this.states.length; i++) {
+		this.indexes[this.states[i].name] = i;
+		if (this.states[i].initial) {
+      		this.currentState = this.states[i];
+    	}
+	}
+};
+
+StateMachine.prototype.consumeEvent = function(e) {
+	if (this.currentState.events[e]) {
+		this.currentState = this.states[this.indexes[this.currentState.events[e]]]
+	}
+}
+
+StateMachine.prototype.getStatus = function() {
+	return this.currentState.name;
+}
+
 function operate(operator, x, y) {
 	switch (operator) {
 		case "+": 
@@ -22,14 +86,12 @@ function resetVariables() {
 	lastOperator = null;
 	x = 0;
 	y = 0;
-	lastWasOperator = false;
 }
 
 function numberPress(number) {
-	if (display.textContent == "0" || lastWasOperator == true || lastWasAnswer) {
+	if (sm.getStatus() == "Ready" || sm.getStatus() == "TypingOperator" || sm.getStatus() == "DisplayingResult") {
 	 		display.textContent = number;
-	 		lastWasOperator = false;
-	 		lastWasAnswer = false;
+	 		sm.consumeEvent("NumberPress");
  	}
  	else {
  		display.textContent += number;
@@ -43,33 +105,39 @@ function decimalPress() {
 }
 
 function operatorPress(operator) {
-	if (lastWasOperator == false && lastOperator !== null) {
+	if (sm.getStatus() == "TypingNumber2") {
 			y = parseFloat(display.textContent);
 			x = operate(lastOperator, x, y);
 			lastOperator = operator;
 		}
-		else if (lastWasOperator == true && lastOperator !== null) {
+		else if (sm.getStatus() == "TypingOperator") {
 			lastOperator = operator;
 		}
-		else if (lastWasOperator == false && lastOperator == null) {
+		else if (sm.getStatus() == "TypingNumber1" || sm.getStatus() == "Ready" || sm.getStatus() == "DisplayingResult") {
 			x = parseFloat(display.textContent);
 			lastOperator = operator;
 		}
-		lastWasOperator = true;
+		sm.consumeEvent("OperatorPress");
 }
 
 function equalPress() {
-	if (lastWasOperator == true) {
+	if (sm.getStatus() == "TypingOperator") {
 		display.textContent = String(x);
 		resetVariables();
 	}
-	else if (lastWasAnswer  == false && lastOperator !== null) {
+	else if (sm.getStatus() == "TypingNumber2") {
 		y = parseFloat(display.textContent);
 		x = operate(lastOperator, x, y);
 		display.textContent = String(x);
 		resetVariables();
 	}
-	lastWasAnswer = true;
+	sm.consumeEvent("EqualPress");
+}
+
+function acPress() {
+	resetVariables();
+	display.textContent = "0";
+	sm.consumeEvent("Reset");
 }
 
 function backspacePress() {
@@ -106,19 +174,17 @@ function buttonPress(event) {
 		equalPress();
 	}
 	else if (key == "AC") {
-		resetVariables();
-		display.textContent = "0";
+		acPress();
 	}
 	else if (key == "<-" || key == "Backspace") {
 		backspacePress();
 	}
 }
 
+var sm = new StateMachine(states);
 var display = document.querySelector("#display");
 var buttons = document.querySelectorAll("button");
-var lastWasOperator = false;
 var lastOperator = null;
-var lastWasAnswer = false;
 var x = 0;
 var y = 0;
 
