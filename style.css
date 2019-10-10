@@ -1,6 +1,6 @@
 #title {
 	margin-top: 100px;
-	font-weight: light;
+	font-weight: 300;
 	font-style: italic;
 }
 
@@ -20,19 +20,22 @@
 #display {
 	line-height: 40px;
 	text-align: center;
-  border-radius: 5px;
-	margin: 15px;
-  font-size: 25px;
+	border-radius: 5px;
+	margin: auto;
+	font-size: 25px;
+	width: 312px;
+    text-overflow: clip;
+    overflow: hidden;
 }
 
 button {
 	background-color: #f6f6f6;
 	font-family: Arial;
 	padding: 10px 30px 10px 30px;
-  border-radius: 5px;
+  	border-radius: 5px;
 	border: 1px solid #c9c9c9;
 	margin: 2px;
-  font-size: 20px;
+  	font-size: 20px;
 	text-align: center;
 	font-family: 'Roboto Condensed', sans-serif;
 }
