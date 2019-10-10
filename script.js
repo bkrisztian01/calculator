@@ -64,16 +64,18 @@ StateMachine.prototype.getStatus = function() {
 
 function operate(operator, x, y) {
 	switch (operator) {
-		case "+": 
+		case "+":
 			return x + y;
 			break;
-		case "-": 
+		case "-":
 			return x - y;
 			break;
-		case "*": 
+		case "*":
 			return x * y;
 			break;
-		case "/": 
+		case "/":
+			if (y == 0)
+				return "error";
 			return x / y;
 			break;
 		default:
@@ -89,7 +91,8 @@ function resetVariables() {
 }
 
 function numberPress(number) {
-	if (sm.getStatus() == "Ready" || sm.getStatus() == "TypingOperator" || sm.getStatus() == "DisplayingResult") {
+	if (number == "0" && sm.getStatus() == "Ready") { /*nothing*/ }
+	else if (sm.getStatus() == "Ready" || sm.getStatus() == "TypingOperator" || sm.getStatus() == "DisplayingResult") {
 	 		display.textContent = number;
 	 		sm.consumeEvent("NumberPress");
  	}
